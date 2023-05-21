@@ -1,10 +1,10 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 
 import classes from './AuthForm.module.css';
 
 const AuthForm = () => {
-  const emailInputRef = useRef();
-  const passwordInputRef = useRef();
+  const [emailInput, setEmailInput] = useState('');
+  const [passwordInput, setPasswordInput] = useState('');
   const [isLogin, setIsLogin] = useState(true);
   const [sendingRequest, setSendingRequest] = useState(false);
 
@@ -19,11 +19,33 @@ const AuthForm = () => {
       console.log('sending request');
     }
 
-    const enteredEmail = emailInputRef.current.value;
-    const enteredPassword = passwordInputRef.current.value;
+    const enteredEmail = emailInput;
+    const enteredPassword = passwordInput;
 
     if (isLogin) {
-
+      fetch('https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyDPloRl2BOnT7Bl4EIlvaBNjsfaKbtdRhI', {
+        method: 'POST',
+        body: JSON.stringify({
+          email: enteredEmail,
+          password: passwordInput,
+          returnSecureToken: true
+        }),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }).then(res => {
+        if(res.ok) {  
+          console.log('logged in successfully!');
+        } else {
+          res.json().then(data => {
+            let errorMsg = data.error.message;
+            alert(errorMsg);
+          })
+        }
+        setSendingRequest(false);
+        setEmailInput('');
+        setPasswordInput('');
+      })
     } else {
       fetch('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyDPloRl2BOnT7Bl4EIlvaBNjsfaKbtdRhI', {
         method: 'POST',
@@ -36,15 +58,17 @@ const AuthForm = () => {
           'Content-Type': 'application/json'
         }
       }).then(res => {
-        setSendingRequest(false);
         if(res.ok) {
-
+          console.log('Account created successfully!');  
         } else {
-          return res.json().then(data => {
+          res.json().then(data => {
             let errorMsg = data.error.message;
             alert(errorMsg);
           });
         }
+        setSendingRequest(false);
+        setEmailInput('');
+        setPasswordInput('');
       });
     }
   }
@@ -55,7 +79,7 @@ const AuthForm = () => {
       <form onSubmit={submitHandler}>
         <div className={classes.control}>
           <label htmlFor='email'>Your Email</label>
-          <input type='email' id='email' required ref={emailInputRef} />
+          <input type='email' id='email' required value={emailInput} onChange={(e) => setEmailInput(e.target.value)} />
         </div>
         <div className={classes.control}>
           <label htmlFor='password'>Your Password</label>
@@ -63,7 +87,8 @@ const AuthForm = () => {
             type='password'
             id='password'
             required
-            ref={passwordInputRef}
+            value={passwordInput}
+            onChange={(e) => setPasswordInput(e.target.value)}
           />
         </div>
         <div className={classes.actions}>
