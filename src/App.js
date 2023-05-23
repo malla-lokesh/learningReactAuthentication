@@ -4,16 +4,21 @@ import Layout from './components/Layout/Layout';
 import UserProfile from './components/Profile/UserProfile';
 import AuthPage from './pages/AuthPage';
 import HomePage from './pages/HomePage';
+import { useContext } from 'react';
+import AuthContext from './store/auth-context';
 
 function App() {
+  const authCtx = useContext(AuthContext);
+
   return (
     <Layout>
       <Switch>
         <Route path='/' exact>
-          <HomePage />
+          {!authCtx.isLoggedIn && <HomePage />}
         </Route>
         <Route path='/auth'>
-          <AuthPage />
+          {!authCtx.isLoggedIn && <AuthPage />}
+          {authCtx.isLoggedIn && <UserProfile/>}
         </Route>
         <Route path='/profile'>
           <UserProfile />
