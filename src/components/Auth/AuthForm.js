@@ -1,12 +1,15 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 
 import classes from './AuthForm.module.css';
+import AuthContext from '../../store/auth-context';
 
 const AuthForm = () => {
   const [emailInput, setEmailInput] = useState('');
   const [passwordInput, setPasswordInput] = useState('');
   const [isLogin, setIsLogin] = useState(true);
   const [sendingRequest, setSendingRequest] = useState(false);
+
+  const authCtx = useContext(AuthContext);
 
   const switchAuthModeHandler = () => {
     setIsLogin((prevState) => !prevState);
@@ -34,17 +37,21 @@ const AuthForm = () => {
           'Content-Type': 'application/json'
         }
       }).then(res => {
-        if(res.ok) {  
+        if(res.ok) {
+          setSendingRequest(false);
+          setEmailInput('');
+          setPasswordInput('');  
           console.log('logged in successfully!');
+          return res.json();
         } else {
-          res.json().then(data => {
+          return res.json().then(data => {
             let errorMsg = data.error.message;
             alert(errorMsg);
           })
         }
-        setSendingRequest(false);
-        setEmailInput('');
-        setPasswordInput('');
+      })
+      .then((data) => {
+        authCtx.login(data.idToken);
       })
     } else {
       fetch('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyDPloRl2BOnT7Bl4EIlvaBNjsfaKbtdRhI', {
@@ -59,7 +66,7 @@ const AuthForm = () => {
         }
       }).then(res => {
         if(res.ok) {
-          console.log('Account created successfully!');  
+          console.log('Account created successfully!');
         } else {
           res.json().then(data => {
             let errorMsg = data.error.message;
