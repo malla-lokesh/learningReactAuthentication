@@ -1,4 +1,4 @@
-import { Switch, Route } from 'react-router-dom';
+import { Switch, Route, Redirect } from 'react-router-dom';
 
 import Layout from './components/Layout/Layout';
 import UserProfile from './components/Profile/UserProfile';
@@ -16,12 +16,17 @@ function App() {
         <Route path='/' exact>
           {!authCtx.isLoggedIn && <HomePage />}
         </Route>
-        <Route path='/auth'>
-          {!authCtx.isLoggedIn && <AuthPage />}
-          {authCtx.isLoggedIn && <UserProfile/>}
-        </Route>
+        {!authCtx.isLoggedIn && (
+          <Route path='/auth'>
+            <AuthPage />
+          </Route>
+        )}
         <Route path='/profile'>
-          <UserProfile />
+          {authCtx.isLoggedIn && <UserProfile />}
+          {!authCtx.isLoggedIn && <Redirect to='/auth'/>}
+        </Route>
+        <Route path='*'>
+          <Redirect to='/'/>
         </Route>
       </Switch>
     </Layout>

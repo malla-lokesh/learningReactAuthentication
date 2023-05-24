@@ -40,8 +40,7 @@ const AuthForm = () => {
         if(res.ok) {
           setSendingRequest(false);
           setEmailInput('');
-          setPasswordInput('');  
-          console.log('logged in successfully!');
+          setPasswordInput('');
           return res.json();
         } else {
           return res.json().then(data => {
