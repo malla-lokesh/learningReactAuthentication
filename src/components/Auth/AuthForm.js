@@ -50,6 +50,7 @@ const AuthForm = () => {
         }
       })
       .then((data) => {
+        setTimeout(authCtx.logout, 300000);
         authCtx.login(data.idToken);
       })
     } else {
